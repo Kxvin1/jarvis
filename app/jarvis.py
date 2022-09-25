@@ -52,9 +52,10 @@ starter_encouragements = [
 ]
 
 
-def get_quote():
+def get_quote() -> str:
     response = requests.get("https://zenquotes.io/api/random").json()
     quote = f'{response[0]["q"]} -{response[0]["a"]}'
+    print(type(quote))
     return quote
 
 
@@ -71,7 +72,7 @@ async def on_ready():
 
 
 @client.event
-async def on_message(message):
+async def on_message(message: str) -> str:
     msg = message.content
 
     if message.author == client.user:
@@ -86,6 +87,8 @@ async def on_message(message):
 
     if any(word in msg for word in sad_words):
         await message.channel.send(random.choice(starter_encouragements))
+
+    print(type(msg), "msg type")
 
 
 client.run(os.getenv("TOKEN"))
