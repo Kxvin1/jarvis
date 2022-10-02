@@ -118,6 +118,12 @@ async def on_message(message: str) -> str:
     if message.author == client.user:
         return
 
+    if msg.startswith("jarvis update"):
+        weather_details = get_weather_city("Northridge")
+        greeting_weather = weather_details[3:-3]
+        output = f"```Hello sir, here's are your updates: \n\nIt's {current_time_12}.\n\n{greeting_weather}.```"
+        await message.channel.send(output)
+
     if msg.startswith("!inspire"):
         quote = get_quote()
         await message.channel.send(f"Retrieving random motivational quote...")
