@@ -147,38 +147,44 @@ async def on_message(message: str) -> str:
                     time.sleep(2)
                     await message.channel.send(weather_details)
                 else:
-                    await message.channel.send("Zip code valid.")
+                    await message.channel.send("Zip code invalid.")
             except:
                 await message.channel.send(
-                    "No zip code found. Here's the correct format: jarvis weather <zipcode>"
+                    f"Zip code {zip_code} not found. Here's the correct format: jarvis weather <zipcode>"
                 )
         # elif input was a city input
         elif city_checker(get_jarvis_command[2]):
             try:
                 if get_jarvis_command[2] and city_checker(get_jarvis_command[2]):
+                    # city with 1 name
                     if len(get_jarvis_command) == 3:
                         city_name = {get_jarvis_command[2]}
                         retrieve_msg = f"Getting weather details for {get_jarvis_command[2].capitalize()}..."
+
+                    # city with 2 names
                     elif len(get_jarvis_command) == 4:
                         city_name = f"{get_jarvis_command[2]}-{get_jarvis_command[3]}"
                         retrieve_msg = f"Getting weather details for {get_jarvis_command[2].capitalize()} {get_jarvis_command[3].capitalize()}..."
+
+                    # city with 3 names
                     elif len(get_jarvis_command) == 5:
                         city_name = f"{get_jarvis_command[2]}-{get_jarvis_command[3]}-{get_jarvis_command[4]}"
                         retrieve_msg = f"Getting weather details for {get_jarvis_command[2].capitalize()} {get_jarvis_command[3].capitalize()} {get_jarvis_command[4].capitalize()}..."
+
                     weather_details = get_weather_city(city_name)
                     await message.channel.send(retrieve_msg)
                     time.sleep(2)
                     await message.channel.send(weather_details)
                 else:
-                    await message.channel.send("City name valid.")
+                    await message.channel.send("City name invalid.")
             except:
                 await message.channel.send(
-                    "No city name found. Here's the correct format: jarvis weather <city name>"
+                    f"City name '{city_name}' not found. Here's the correct format: jarvis weather <city name>"
                 )
         # else, print invalid input
         else:
             await message.channel.send(
-                "```Weather request invalid. Did you mean one of these commands?:\njarvis weather <zipcode>\njarvis weather <city>```"
+                f"```Weather request for input '{get_jarvis_command[2]}' is invalid. Make sure to put a valid zip code (i.e. 90210) or city name (i.e. Seattle).\n\nDid you mean one of these commands?:\njarvis weather <zipcode>\njarvis weather <city>```"
             )
 
 
