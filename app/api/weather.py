@@ -65,8 +65,8 @@ def get_initial_data_from_city(city_name_input: str) -> dict[str:str]:
         "state": "",
         "city_name": "",
         "country": "",
-        "lat": "",
-        "lon": "",
+        "lat": 0,
+        "lon": 0,
     }
 
     if city_name_input:
@@ -75,7 +75,11 @@ def get_initial_data_from_city(city_name_input: str) -> dict[str:str]:
                 f"http://api.openweathermap.org/geo/1.0/direct?q={city_name_input}&appid={weather_api_key}"
             ).json()
 
-            output["state"] = get_initial_info[0]["state"]
+            if "state" not in get_initial_info[0]:
+                output["state"] = ""
+            else:
+                output["state"] = get_initial_info[0]["state"]
+
             output["city_name"] = get_initial_info[0]["name"]
             output["country"] = get_initial_info[0]["country"]
             output["lat"] = get_initial_info[0]["lat"]
@@ -125,7 +129,7 @@ def get_weather_zip(zip_code: str) -> str:
                 converted_sunset = convert_unix_to_date(sunset)
                 sunset_time = format_time(converted_sunset)
 
-            output_msg = f"```The current weather in {city_name}, {country} is {fahrenheit} degrees with a {weather_desc} and {humidity}% humidity. Forecasts are showing {weather_type} throughout the day.\nSunset for {city_name} will be at {sunset_time} pacific time, and sunrise at {sunrise_time}.```"
+            output_msg = f"```The current weather in {city_name}, {country} is {fahrenheit} degrees with {weather_desc} and {humidity}% humidity. Forecasts are showing {weather_type} throughout the day.\nSunset for {city_name} will be at {sunset_time} pacific time, and sunrise at {sunrise_time}.```"
 
         except:
             print(
@@ -142,7 +146,11 @@ def get_weather_city(city_name_input: str) -> str:
         try:
             get_initial_info = get_initial_data_from_city(city_name_input)
 
-            state = get_initial_info["state"]
+            if "state" in get_initial_info:
+                state = get_initial_info["state"]
+            else:
+                state = ""
+
             city_name = get_initial_info["city_name"]
             country = get_initial_info["country"]
             lat = get_initial_info["lat"]
@@ -172,11 +180,13 @@ def get_weather_city(city_name_input: str) -> str:
                 converted_sunset = convert_unix_to_date(sunset)
                 sunset_time = format_time(converted_sunset)
 
-            output_msg = f"```The current weather in {city_name}, {state} ({country}) is {fahrenheit} degrees with a {weather_desc} and {humidity}% humidity. Forecasts are showing {weather_type} throughout the day.\nSunset for {city_name} will be at {sunset_time} pacific time, and sunrise at {sunrise_time}.```"
+            output_msg_with_state = f"```The current weather in {city_name}, {state} ({country}) is {fahrenheit} degrees with {weather_desc} and {humidity}% humidity. Forecasts are showing {weather_type} throughout the day.\nSunset for {city_name} will be at {sunset_time} pacific time, and sunrise at {sunrise_time}.```"
+
+            output_msg_no_state = f"```The current weather in {city_name} ({country}) is {fahrenheit} degrees with {weather_desc} and {humidity}% humidity. Forecasts are showing {weather_type} throughout the day.\nSunset for {city_name} will be at {sunset_time} pacific time, and sunrise at {sunrise_time}.```"
 
         except:
             print(
                 f"Error getting weather from http://api.openweathermap.org/geo/1.0/direct?q={city_name_input}&appid={weather_api_key}"
             )
 
-    return output_msg
+    return output_msg_with_state if state != "" else output_msg_no_state
