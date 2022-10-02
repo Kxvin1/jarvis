@@ -1,11 +1,15 @@
 import discord
 import os
-import requests
 import random
-import datetime as dt
 import time
 
 from dotenv import load_dotenv
+
+from utils.zip_checker import zip_checker
+from utils.city_checker import city_checker
+
+from api.quotes import get_quote
+from api.weather import get_weather_zip, get_weather_city
 
 load_dotenv()
 client = discord.Client()
@@ -14,6 +18,30 @@ client = discord.Client()
 ########################## start future implementations ##########################
 # if using in cli: might need to use sysargv[1] sysargv[2] etc to check user input for certain commands?
 # otherwise should work as normal commands in discord
+
+# Planned features:
+# -Permanent uptime for discord bot
+# -Implement reddit api
+# -Implement Twitter api
+# -Implement Google calendar api
+# -Spotify api
+# -flight/travel api
+# -nba api
+# -hotel bookings
+# -airbnb api
+# -news
+# -urbandictionary
+# -recipes
+# -words api
+# -youtube api
+
+
+# TBD Features (need to look more into it):
+# LinkedIn api
+# No database for bot for now, if I ever need one lets implement dynamodb
+
+########################## end future implementations ##########################
+
 jarvis_commands = [
     "jarvis wake up",  # start jarvis
     "jarvis power off",  # stop jarvis
@@ -43,7 +71,6 @@ jarvis_actions = [
     "send email [action]",
     "track [action]",
 ]
-########################## end future implementations ##########################
 
 
 jarvis_wake_commands = [
@@ -52,109 +79,41 @@ jarvis_wake_commands = [
     "greetings jarvis",
     "jarvis you there",
     "hey jarvis",
+    "jarvis hi",
+    "jarvis hey",
+    "you there jarvis",
+    "jarvis hello",
+    "jarvis greetings",
 ]
 
 
 jarvis_wake_responses = [
-    "For you sir, always.",
+    "Hi sir.",
     "At your service, sir.",
     "Hello, sir. Congratulations on the progress so far.",
 ]
 
+from datetime import datetime
 
-def get_quote() -> str:
-    response = requests.get("https://zenquotes.io/api/random").json()
-    quote = f'{response[0]["q"]} -{response[0]["a"]}'
-    return quote
-
-
-def convert_unix_to_date(unix_string):
-    return dt.datetime.fromtimestamp(int(f"{unix_string}")).strftime(
-        "%Y-%m-%d %H:%M:%S"
-    )
-
-
-def get_weather(zip_code: str) -> str:
-    weather_api_key = os.environ["WEATHER_API_KEY"]
-
-    if zip_code:
-
-        try:
-            get_initial_info = requests.get(
-                f"http://api.openweathermap.org/geo/1.0/zip?zip={zip_code}&appid={weather_api_key}"
-            ).json()
-
-            zip = get_initial_info["zip"]
-            city_name = get_initial_info["name"]
-            country = get_initial_info["country"]
-            lat = get_initial_info["lat"]
-            lon = get_initial_info["lon"]
-            if get_initial_info:
-                response = requests.get(
-                    f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={weather_api_key}"
-                ).json()
-
-                weather_type = response["weather"][0]["main"]
-
-                weather_desc = response["weather"][0]["description"]
-
-                kelvin_temp = response["main"]["temp"]
-                temp = int(kelvin_temp * 1.8 - 459.67)
-
-                humidity = response["main"]["humidity"]
-
-                # convert sunrise unix time to local time, show only hour and minute and in 12 hour time + automatically show am/pm
-                sunrise = response["sys"]["sunrise"]
-                converted_sunrise = convert_unix_to_date(sunrise)
-                converted_sunrise_split = converted_sunrise.split()
-                converted_sunrise_time = converted_sunrise_split[1]
-                sunrise_time_split = converted_sunrise_time.split(":")
-                sunrise_hour = sunrise_time_split[0]
-                sunrise_minute = sunrise_time_split[1]
-                sunrise_time = f"{sunrise_hour}:{sunrise_minute}"
-
-                sunrise_t = time.strptime(sunrise_time, "%H:%M")
-                sunrise_timevalue_12hour = time.strftime("%I:%M %p", sunrise_t)
-
-                # convert sunset unix time to local time, show only hour and minute and in 12 hour time + automatically show am/pm
-                sunset = response["sys"]["sunset"]
-                converted_sunset = convert_unix_to_date(sunset)
-                converted_sunset_split = converted_sunset.split()
-                converted_sunset_time = converted_sunset_split[1]
-                sunset_time_split = converted_sunset_time.split(":")
-                sunset_hour = sunset_time_split[0]
-                sunset_minute = sunset_time_split[1]
-                sunset_time = f"{sunset_hour}:{sunset_minute}"
-
-                sunset_t = time.strptime(sunset_time, "%H:%M")
-                sunset_timevalue_12hour = time.strftime("%I:%M %p", sunset_t)
-
-            output_msg = f"The weather in {city_name}, {country} is {temp} degrees with a {weather_desc} and {humidity}% humidity. Forecasts are showing {weather_type} throughout the day.\nSunset will be at {sunset_timevalue_12hour}, with sunrise at {sunrise_timevalue_12hour}."
-
-        except:
-            print(
-                f"Error getting weather from http://api.openweathermap.org/geo/1.0/zip?zip={zip_code}&appid={weather_api_key}"
-            )
-
-    return output_msg
+now = datetime.now()
+current_time_12 = now.strftime("%m/%d/%Y %I:%M:%S %p")
 
 
 @client.event
 async def on_ready():
-    # how it should look when weather, time, and forecast are implemented:
-    # print(
-    #     f"Good morning sir. \nHere are your updates for the day: \nIt's <time>. The weather in <location> is <temperature in degrees> degrees with <short forecast>. <longer forecast>."
-    # )
+    weather_details = get_weather_city("Northridge")
+    greeting_weather = weather_details[3:-3]
 
     print(
-        f"Good morning sir. Here are your updates for the day: \nIt's 7 A.M. The weather in Malibu is 72 degrees with scattered clouds. The surf conditions are fair with waist to shoulder highlines, high tide will be at 10:52 a.m."
+        f"Hello sir. Here are your updates for the day: \n\nIt's {current_time_12}.\n\n{greeting_weather}."
     )
 
 
 @client.event
 async def on_message(message: str) -> str:
-    msg = message.content
-    get_jarvis_command = msg.split()
+    get_msg = message.content
+    get_jarvis_command = get_msg.split()
+    msg = get_msg.lower()
 
     if message.author == client.user:
         return
@@ -166,18 +125,53 @@ async def on_message(message: str) -> str:
         await message.channel.send(quote)
 
     if msg.startswith("jarvis weather"):
-        # get weather via zip code
-        if get_jarvis_command[2]:
+        # if input was a zip code:
+        if zip_checker(get_jarvis_command[2]):
             try:
-                zip_code = get_jarvis_command[2]
-                weather_details = get_weather(zip_code)
-                await message.channel.send(f"Getting weather details for {zip_code}...")
-                time.sleep(2)
-                await message.channel.send(weather_details)
+                if get_jarvis_command[2]:
+                    zip_code = get_jarvis_command[2]
+                    weather_details = get_weather_zip(zip_code)
+                    await message.channel.send(
+                        f"Getting weather details for {zip_code}..."
+                    )
+                    time.sleep(2)
+                    await message.channel.send(weather_details)
+                else:
+                    await message.channel.send("Zip code valid.")
             except:
-                await message.channel.send("Zip code was not valid.")
+                await message.channel.send(
+                    "No zip code found. Here's the correct format: jarvis weather <zipcode>"
+                )
+        # elif input was a city input
+        elif city_checker(get_jarvis_command[2]):
+            try:
+                if get_jarvis_command[2] and city_checker(get_jarvis_command[2]):
+                    if len(get_jarvis_command) == 3:
+                        city_name = {get_jarvis_command[2]}
+                        retrieve_msg = f"Getting weather details for {get_jarvis_command[2].capitalize()}..."
+                    elif len(get_jarvis_command) == 4:
+                        city_name = f"{get_jarvis_command[2]}-{get_jarvis_command[3]}"
+                        retrieve_msg = f"Getting weather details for {get_jarvis_command[2].capitalize()} {get_jarvis_command[3].capitalize()}..."
+                    elif len(get_jarvis_command) == 5:
+                        city_name = f"{get_jarvis_command[2]}-{get_jarvis_command[3]}-{get_jarvis_command[4]}"
+                        retrieve_msg = f"Getting weather details for {get_jarvis_command[2].capitalize()} {get_jarvis_command[3].capitalize()} {get_jarvis_command[4].capitalize()}..."
+                    weather_details = get_weather_city(city_name)
+                    await message.channel.send(retrieve_msg)
+                    time.sleep(2)
+                    await message.channel.send(weather_details)
+                else:
+                    await message.channel.send("City name valid.")
+            except:
+                await message.channel.send(
+                    "No city name found. Here's the correct format: jarvis weather <city name>"
+                )
+        # else, print invalid input
+        else:
+            await message.channel.send(
+                "```Weather request invalid. Did you mean one of these commands?:\njarvis weather <zipcode>\njarvis weather <city>```"
+            )
 
-    if any(wake_command in msg for wake_command in jarvis_wake_commands):
+    if any(wake_command in msg.lower() for wake_command in jarvis_wake_commands):
         await message.channel.send(random.choice(jarvis_wake_responses))
 
 
