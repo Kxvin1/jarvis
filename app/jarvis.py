@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from utils.zip_checker import zip_checker
 from utils.city_checker import city_checker
+from utils.get_current_time import get_current_time
 
 from api.quotes import get_quote
 from api.weather import get_weather_zip, get_weather_city
@@ -15,38 +16,43 @@ load_dotenv()
 client = discord.Client()
 
 
-########################## start future implementations ##########################
+########################## start implementations ##########################
 # if using in cli: might need to use sysargv[1] sysargv[2] etc to check user input for certain commands?
-# otherwise should work as normal commands in discord
+# otherwise should work as normal commands in discord using msg.startswith
+
+# implemented features:
+# 1. inspirational quote api
+# 2. jarvis basic greetings (jarvis will reply with preset greetings based on what you say)
+# 3. retrieve weather api, using zipcode or city name
+
+# currently working on:
+# 1. google calendar api implementation
 
 # Planned features:
+# -Implement Google calendar api
 # -Permanent uptime for discord bot
 # -Implement reddit api
 # -Implement Twitter api
-# -Implement Google calendar api
+# -youtube api
 # -Spotify api
 # -flight/travel api
-# -nba api
-# -hotel bookings
-# -airbnb api
 # -news
+# -hotel bookings
+# -nba api
+# -airbnb api
 # -urbandictionary
 # -recipes
 # -words api
-# -youtube api
 
 
 # TBD Features (need to look more into it):
 # LinkedIn api
 # No database for bot for now, if I ever need one lets implement dynamodb
 
-########################## end future implementations ##########################
+########################## end implementations ##########################
 
 jarvis_commands = [
-    "jarvis wake up",  # start jarvis
-    "jarvis power off",  # stop jarvis
-    "jarvis stealth",  # sleep jarvis
-    "jarvis weather",  # grab weather from api -- IMPLEMENTED. just needs touching up
+    "jarvis weather",  # grab weather from api -- IMPLEMENTED. just needs touching up/refactoring
     "jarvis time"  # grab time
     "jarvis forecast"  # grab forecast from api
     "jarvis create to do",  # create a formatted message block
@@ -55,21 +61,6 @@ jarvis_commands = [
     "jarvis set alarm",  # ping me at set time (discord webhook?)
     "jarvis send email",  # send email from my email address (google key, refer to my amz scraper project)
     "jarvis track",  # use geolocation db to track user by ip address (geolocate)
-]
-
-jarvis_actions = [
-    "wakeup [action]",
-    "poweroff [action]",
-    "stealth [action]",
-    "weather [action]",
-    "time [action]",
-    "forecast [action]",
-    "create to do [action]",
-    "locate [action]",
-    "add url [action]",
-    "set alarm [action]",
-    "send email [action]",
-    "track [action]",
 ]
 
 
@@ -84,6 +75,10 @@ jarvis_wake_commands = [
     "you there jarvis",
     "jarvis hello",
     "jarvis greetings",
+    "wake up jarvis",
+    "jarvis wake up",
+    "wakeup jarvis",
+    "jarvis wakeup",
 ]
 
 
@@ -93,43 +88,52 @@ jarvis_wake_responses = [
     "Hello, sir. Congratulations on the progress so far.",
 ]
 
-from datetime import datetime
 
-now = datetime.now()
-current_time_12 = now.strftime("%m/%d/%Y %I:%M:%S %p")
-
-
+# JARVIS -- RUNS ONCE ON START, PRINTS TO TERMINAL
 @client.event
 async def on_ready():
+    current_time = get_current_time()
+
     weather_details = get_weather_city("Northridge")
     greeting_weather = weather_details[3:-3]
 
     print(
-        f"Hello sir. Here are your updates for the day: \n\nIt's {current_time_12}.\n\n{greeting_weather}."
+        f"Hello sir. Here are your updates for the day: \n\nIt's {current_time}.\n\n{greeting_weather}."
     )
 
 
+# JARVIS -- EVENT LISTENERS - SENDS MESSAGES TO DISCORD SERVER BASED ON COMMAND
 @client.event
 async def on_message(message: str) -> str:
     get_msg = message.content
     get_jarvis_command = get_msg.split()
-    msg = get_msg.lower()
+    msg = get_msg.lower()  # make commands case insensitive
 
+    # IGNORE COMMANDS FROM SELF (JARVIS BOT)
     if message.author == client.user:
         return
 
+    # JARVIS -- SIMPLE UPDATE (GIVES TIME AND WEATHER FOR ADMIN USER)
     if msg.startswith("jarvis update"):
+        jarvis_update_current_time = get_current_time()
+
         weather_details = get_weather_city("Northridge")
         greeting_weather = weather_details[3:-3]
-        output = f"```Hello sir, here's are your updates: \n\nIt's {current_time_12}.\n\n{greeting_weather}.```"
+        output = f"```Hello sir, here's are your updates: \n\nIt's {jarvis_update_current_time}.\n\n{greeting_weather}.```"
         await message.channel.send(output)
 
+    # JARVIS -- SIMPLE JARVIS GREETING
+    if any(wake_command in msg.lower() for wake_command in jarvis_wake_commands):
+        await message.channel.send(random.choice(jarvis_wake_responses))
+
+    # JARVIS -- INSPIRATIONAL QUOTES API FETCHING
     if msg.startswith("!inspire"):
         quote = get_quote()
         await message.channel.send(f"Retrieving random motivational quote...")
         time.sleep(2)
         await message.channel.send(quote)
 
+    # JARVIS -- WEATHER API FETCHING
     if msg.startswith("jarvis weather"):
         # if input was a zip code:
         if zip_checker(get_jarvis_command[2]):
@@ -176,9 +180,6 @@ async def on_message(message: str) -> str:
             await message.channel.send(
                 "```Weather request invalid. Did you mean one of these commands?:\njarvis weather <zipcode>\njarvis weather <city>```"
             )
-
-    if any(wake_command in msg.lower() for wake_command in jarvis_wake_commands):
-        await message.channel.send(random.choice(jarvis_wake_responses))
 
 
 client.run(os.getenv("TOKEN"))
