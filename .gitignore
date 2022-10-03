@@ -1,3 +1,8 @@
 app/.env
 */__pycache__
 app/*/__pycache__
+.prettierrc
+utils/client_secret_google_calendar.json
+client_secret_google_calendar.json
+api/token-files
+token-files
