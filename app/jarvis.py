@@ -29,7 +29,7 @@ client = discord.Client()
 # 1. google calendar api implementation
 
 # Planned features:
-# -Implement Google calendar api
+# -Geolocate a user (by ip address)
 # -Permanent uptime for discord bot
 # -Implement reddit api
 # -Implement Twitter api
@@ -53,14 +53,8 @@ client = discord.Client()
 
 jarvis_commands = [
     "jarvis weather",  # grab weather from api -- IMPLEMENTED. just needs touching up/refactoring
-    "jarvis time"  # grab time
-    "jarvis forecast"  # grab forecast from api
-    "jarvis create to do",  # create a formatted message block
-    "jarvis locate",  # locate user via ip (geolocate api)
-    "jarvis add url",  # post url
-    "jarvis set alarm",  # ping me at set time (discord webhook?)
-    "jarvis send email",  # send email from my email address (google key, refer to my amz scraper project)
     "jarvis track",  # use geolocation db to track user by ip address (geolocate)
+    "jarvis create calendar event",  # use google calendar api to create a calendar event
 ]
 
 
