@@ -1,6 +1,7 @@
-from datetime import timedelta
 from pprint import pprint
-from Google import Create_Service, convert_to_RFC_datetime
+
+from api.Google import *
+from api.google_apis import *
 
 
 CLIENT_SECRET_FILE = "client_secret_google_calendar.json"
@@ -39,25 +40,35 @@ def create_google_calendar_event(
     description_input: str,
     location_input: str,
 ):
+    int_start_year_input = int(start_year_input)
+    int_start_month_input = int(start_month_input)
+    int_start_day_input = int(start_day_input)
+    int_start_hour_input = int(start_hour_input)
+    int_start_minute_input = int(start_minute_input)
+    int_end_year_input = int(end_year_input)
+    int_end_month_input = int(end_month_input)
+    int_end_day_input = int(end_day_input)
+    int_end_hour_input = int(end_hour_input)
+    int_end_minute_input = int(end_minute_input)
 
     event_request_body = {
         "start": {
             "dateTime": convert_to_RFC_datetime(
-                start_year_input,
-                start_month_input,
-                start_day_input,
-                start_hour_input + HOUR_ADJUSTMENT,
-                start_minute_input,
+                int_start_year_input,
+                int_start_month_input,
+                int_start_day_input,
+                int_start_hour_input,
+                int_start_minute_input,
             ),
             "timeZone": "America/Los_Angeles",
         },
         "end": {
             "dateTime": convert_to_RFC_datetime(
-                end_year_input,
-                end_month_input,
-                end_day_input,
-                end_hour_input + HOUR_ADJUSTMENT,
-                end_minute_input,
+                int_end_year_input,
+                int_end_month_input,
+                int_end_day_input,
+                int_end_hour_input,
+                int_end_minute_input,
             ),
             "timeZone": "America/Los_Angeles",
         },
@@ -90,20 +101,9 @@ def create_google_calendar_event(
         "Jarvis successfully created a Google Calendar event. Here are the details:\n"
     )
     pprint(response)
+    return response
 
 
-create_google_calendar_event(
-    2022,
-    12,
-    12,
-    12,
-    12,
-    2022,
-    12,
-    12,
-    15,
-    30,
-    "meeting with elon musk",
-    "top secret",
-    "area 52",
-)
+# create_google_calendar_event(
+#     2022, 11, 15, 8, 30, 2022, 11, 15, 9, 30, "title", "desc", "location"
+# )

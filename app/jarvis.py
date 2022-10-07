@@ -12,6 +12,8 @@ from utils.get_current_time import get_current_time
 from api.quotes import get_quote
 from api.weather import get_weather_zip, get_weather_city
 
+from api.google_calendar import create_google_calendar_event
+
 load_dotenv()
 client = discord.Client()
 
@@ -177,8 +179,66 @@ async def on_message(message: str) -> str:
                 )
         # else, print invalid input
         else:
+            invalid_weather_command_output = " ".join(get_jarvis_command[2:])
             await message.channel.send(
-                f"```Weather request for input '{get_jarvis_command[2]}' is invalid. Make sure to put a valid zip code (i.e. 90210) or city name (i.e. Seattle).\n\nDid you mean one of these commands?:\njarvis weather <zipcode>\njarvis weather <city>```"
+                f"```Weather request for input '{invalid_weather_command_output}' is invalid. Make sure to put a valid zip code (i.e. 90210) or city name (i.e. Seattle).\n\nDid you mean one of these commands?:\njarvis weather <zipcode>\njarvis weather <city>```"
+            )
+
+    # JARVIS -- CREATE GOOGLE CALENDAR EVENT
+    if msg.startswith("jarvis create calendar event"):
+        if len(get_jarvis_command) > 4:
+            calendar_event_details = " ".join(get_jarvis_command[4:])
+            calendar_event_details_inputs = calendar_event_details.split("/")
+
+            start_year_input = int(calendar_event_details_inputs[0])
+            start_month_input = int(calendar_event_details_inputs[1])
+            start_day_input = int(calendar_event_details_inputs[2])
+            start_hour_input = int(calendar_event_details_inputs[3])
+            start_minute_input = int(calendar_event_details_inputs[4])
+            end_year_input = int(calendar_event_details_inputs[5])
+            end_month_input = int(calendar_event_details_inputs[6])
+            end_day_input = int(calendar_event_details_inputs[7])
+            end_hour_input = int(calendar_event_details_inputs[8])
+            end_minute_input = int(calendar_event_details_inputs[9])
+            event_title_input = calendar_event_details_inputs[10]
+            description_input = calendar_event_details_inputs[11]
+            location_input = calendar_event_details_inputs[12]
+
+            if start_hour_input < 0 or start_hour_input > 24:
+                await message.channel.send(f"Input only accepts hours between 0 and 16")
+
+            try:
+                print("in try")
+                await message.channel.send(f"Creating new Google Calendar event...")
+                create_google_calendar_event(
+                    start_year_input,
+                    start_month_input,
+                    start_day_input,
+                    start_hour_input,
+                    start_minute_input,
+                    end_year_input,
+                    end_month_input,
+                    end_day_input,
+                    end_hour_input,
+                    end_minute_input,
+                    event_title_input,
+                    description_input,
+                    location_input,
+                )
+                time.sleep(2)
+                # send msgs about the details here using the variables above
+                await message.channel.send(f"Event created! Here are the details...")
+
+            except:
+                print("IN EXCEPT")
+                invalid_calendar_inputs = "/".join(calendar_event_details_inputs)
+                await message.channel.send(
+                    f"Input {invalid_calendar_inputs} invalid. Make sure to input all 13 required inputs.\n\nDid you mean one of these commands?:\n'jarvis create calendar event start_year/start_month/start_day/start_hour/start_minute/end_year/end_month/end_day/end_hour/end_minute/event_title/event_description/event_location'"
+                )
+        else:
+            invalid_calendar_command_output = " ".join(get_jarvis_command[4:])
+            await message.channel.send(
+                f"```Calendar creation request for input '{invalid_calendar_command_output}' is invalid. Make sure to put a valid zip code (i.e. 90210) or city name (i.e. Seattle).\n\nDid you mean one of these commands?:\njarvis create calendar event start_year/start_month/start_day/start_hour/start_minute/end_year/end_month/end_day/end_hour/end_minute/event_title/event_description/event_location```"
             )
 
 
