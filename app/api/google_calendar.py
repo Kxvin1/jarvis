@@ -37,7 +37,7 @@ def create_google_calendar_event(
     event_title_input: str,
     description_input: str,
     location_input: str,
-):
+) -> None:
     int_start_year_input = int(start_year_input)
     int_start_month_input = int(start_month_input)
     int_start_day_input = int(start_day_input)

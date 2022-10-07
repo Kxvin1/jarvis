@@ -12,7 +12,9 @@ from datetime import datetime
 import pytz
 
 
-def convert_to_RFC_datetime(year=1900, month=1, day=1, hour=0, minute=0):
+def convert_to_RFC_datetime(
+    year: int = 1900, month: int = 1, day: int = 1, hour: int = 0, minute: int = 0
+) -> datetime:
     timeZone = pytz.timezone("US/Pacific")
     dt = datetime(year, month, day, hour, minute)
     local_dt = timeZone.localize(dt, is_dst=None)

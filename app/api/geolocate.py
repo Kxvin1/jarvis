@@ -2,7 +2,7 @@ from requests import get
 from json import dumps
 
 
-def track_user(ip):
+def track_user(ip: str) -> dict[str:str]:
     try:
         response = get(f"https://geolocation-db.com/json/{ip}").json()
     except:
