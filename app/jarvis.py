@@ -19,10 +19,10 @@ client = discord.Client()
 
 
 jarvis_commands = [
-    "j inspire me",  # grab random quote from quotes api
-    "j weather",  # grab weather from api
-    "j track",  # use geolocation db to track user by ip address (geolocate)
-    "j create calendar event",  # use google calendar api to create a calendar event
+    "j inspire me -- grab random quote from quotes api",  # grab random quote from quotes api
+    "j weather -- grab weather from api (via zipcode or city name)",  # grab weather from api
+    "j track -- geolocate a user by ip address",  # use geolocation db to track user by ip address (geolocate)
+    "j create calendar event -- create google calendar event",  # use google calendar api to create a calendar event
 ]
 
 
@@ -74,6 +74,13 @@ async def on_message(message: str) -> str:
     # IGNORE COMMANDS FROM SELF (JARVIS BOT)
     if message.author == client.user:
         return
+
+    # JARVIS -- LIST COMMANDS
+    if msg.startswith("j commands"):
+        await message.channel.send("Here are my available commands:")
+        time.sleep(1)
+        commands_as_str = "\n".join(jarvis_commands)
+        await message.channel.send(f"```{commands_as_str}```")
 
     # JARVIS -- WEATHER FORECAST AND TIME UPDATE (GIVES TIME AND WEATHER FOR ADMIN USER)
     if msg.startswith("j update"):
