@@ -11,17 +11,18 @@ from utils.get_current_time import get_current_time
 
 from api.quotes import get_quote
 from api.weather import get_weather_zip, get_weather_city
-
 from api.google_calendar import create_google_calendar_event
+from api.geolocate import track_user
 
 load_dotenv()
 client = discord.Client()
 
 
 jarvis_commands = [
-    "jarvis weather",  # grab weather from api -- IMPLEMENTED. just needs touching up/refactoring
-    "jarvis track",  # use geolocation db to track user by ip address (geolocate)
-    "jarvis create calendar event",  # use google calendar api to create a calendar event
+    "j inspire me",  # grab random quote from quotes api
+    "j weather",  # grab weather from api
+    "j track",  # use geolocation db to track user by ip address (geolocate)
+    "j create calendar event",  # use google calendar api to create a calendar event
 ]
 
 
@@ -86,6 +87,37 @@ async def on_message(message: str) -> str:
     # JARVIS -- JARVIS GREETING
     if any(wake_command in msg.lower() for wake_command in jarvis_wake_commands):
         await message.channel.send(random.choice(jarvis_wake_responses))
+
+    # JARVIS -- TRACK USER
+    if msg.startswith("j track"):
+        if get_jarvis_command[2]:
+            try:
+                ip = get_jarvis_command[2]
+                user_details = track_user(ip)
+
+                user_country = user_details["country_name"]
+                user_state = user_details["state"]
+                user_city = user_details["city"]
+                user_postal = user_details["postal"]
+                user_latitude = user_details["latitude"]
+                user_longitude = user_details["longitude"]
+
+                google_map_url = (
+                    f"https://www.google.com/maps?q={user_latitude},{user_longitude}"
+                )
+
+                await message.channel.send(f"Locating user with IP address {ip} ...")
+                time.sleep(2)
+                await message.channel.send(
+                    f"```Details for IP address {ip} found. Here are the user's details:\n\nCountry: {user_country}\nState: {user_state}\nCity: {user_city}\nZip code: {user_postal}\nLatitude,Longitude: {user_latitude},{user_longitude}```"
+                )
+                await message.channel.send(
+                    f"Google Maps direct link to user's latitude and longitude input:\n<{google_map_url}>"
+                )
+            except:
+                await message.channel.send(
+                    f"Error 500: Data for '{ip}' not able to be retrieved at https://geolocation-db.com/json/{ip} \nIP address not found in the database."
+                )
 
     # JARVIS -- INSPIRATIONAL QUOTES API FETCHING
     if msg.startswith("j inspire me"):
