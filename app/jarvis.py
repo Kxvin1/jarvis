@@ -150,7 +150,7 @@ async def on_message(message: str) -> str:
                     await message.channel.send("Zip code invalid.")
             except:
                 await message.channel.send(
-                    f"Zip code {zip_code} not found. Here's the correct format: jarvis weather <zipcode>"
+                    f"Zip code {zip_code} not found. Here's the correct format: j weather <zipcode>"
                 )
         # elif input was a city input
         elif city_checker(get_jarvis_command[2]):
@@ -179,13 +179,13 @@ async def on_message(message: str) -> str:
                     await message.channel.send("City name invalid.")
             except:
                 await message.channel.send(
-                    f"City name '{city_name}' not found. Here's the correct format: jarvis weather <city name>"
+                    f"City name '{city_name}' not found. Here's the correct format: j weather <city name>"
                 )
         # else, print invalid input
         else:
             invalid_weather_command_output = " ".join(get_jarvis_command[2:])
             await message.channel.send(
-                f"```Weather request for input '{invalid_weather_command_output}' is invalid. Make sure to put a valid zip code (i.e. 90210) or city name (i.e. Seattle).\n\nDid you mean one of these commands?:\njarvis weather <zipcode>\njarvis weather <city>```"
+                f"```Weather request for input '{invalid_weather_command_output}' is invalid. Make sure to put a valid zip code (i.e. 90210) or city name (i.e. Seattle).\n\nDid you mean one of these commands?:\nj weather <zipcode>\nj weather <city>```"
             )
 
     # JARVIS -- CREATE GOOGLE CALENDAR EVENT
