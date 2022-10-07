@@ -24,28 +24,29 @@ Create a Calendar Event
 
 
 def create_google_calendar_event(
-    start_year_input: int,
     start_month_input: int,
     start_day_input: int,
+    start_year_input: int,
     start_hour_input: int,
     start_minute_input: int,
-    end_year_input: int,
     end_month_input: int,
     end_day_input: int,
+    end_year_input: int,
     end_hour_input: int,
     end_minute_input: int,
     event_title_input: str,
     description_input: str,
     location_input: str,
 ) -> None:
-    int_start_year_input = int(start_year_input)
+
     int_start_month_input = int(start_month_input)
     int_start_day_input = int(start_day_input)
+    int_start_year_input = int(start_year_input)
     int_start_hour_input = int(start_hour_input)
     int_start_minute_input = int(start_minute_input)
-    int_end_year_input = int(end_year_input)
     int_end_month_input = int(end_month_input)
     int_end_day_input = int(end_day_input)
+    int_end_year_input = int(end_year_input)
     int_end_hour_input = int(end_hour_input)
     int_end_minute_input = int(end_minute_input)
 
@@ -64,7 +65,6 @@ def create_google_calendar_event(
                 int_start_hour_input,
                 int_start_minute_input,
             ),
-            # "timeZone": "America/Los_Angeles",
         },
         "end": {
             "dateTime": convert_to_RFC_datetime(
@@ -74,7 +74,6 @@ def create_google_calendar_event(
                 int_end_hour_input,
                 int_end_minute_input,
             ),
-            # "timeZone": "America/Los_Angeles",
         },
         "summary": str(event_title_input),
         "description": str(description_input),

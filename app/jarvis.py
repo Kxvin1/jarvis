@@ -19,10 +19,10 @@ client = discord.Client()
 
 
 jarvis_commands = [
-    "j inspire me -- grab random quote from quotes api",  # grab random quote from quotes api
-    "j weather -- grab weather from api (via zipcode or city name)",  # grab weather from api
-    "j track -- geolocate a user by ip address",  # use geolocation db to track user by ip address (geolocate)
-    "j create calendar event -- create google calendar event",  # use google calendar api to create a calendar event
+    "j inspire me -- grab random quote from quotes api",
+    "j weather -- grab weather from api (via zipcode or city name)",
+    "j track -- geolocate a user by ip address",
+    "j create calendar event -- create google calendar event",
 ]
 
 
@@ -51,7 +51,7 @@ jarvis_wake_responses = [
 ]
 
 
-# JARVIS -- RUNS ONCE ON START, PRINTS TO TERMINAL
+# JARVIS -- RUNS ONCE ON BOOTUP, PRINTS TO TERMINAL
 @client.event
 async def on_ready():
     current_time = get_current_time()
@@ -115,11 +115,21 @@ async def on_message(message: str) -> str:
 
                 await message.channel.send(f"Locating user with IP address {ip} ...")
                 time.sleep(2)
-                await message.channel.send(
-                    f"```Details for IP address {ip} found. Here are the user's details:\n\nCountry: {user_country}\nState: {user_state}\nCity: {user_city}\nZip code: {user_postal}\nLatitude,Longitude: {user_latitude},{user_longitude}```"
+
+                track_msg = (
+                    f"```"
+                    f"Details for IP address {ip} found. Here are the user's details:\n\n"
+                    f"Country: {user_country}\n"
+                    f"State: {user_state}\n"
+                    f"City: {user_city}\n"
+                    f"Zip code: {user_postal}\n"
+                    f"Latitude,Longitude: {user_latitude},{user_longitude}"
+                    f"```"
                 )
+
+                await message.channel.send(track_msg)
                 await message.channel.send(
-                    f"Google Maps direct link to user's latitude and longitude input:\n<{google_map_url}>"
+                    f"Google Map to user's location:\n<{google_map_url}>"
                 )
             except:
                 await message.channel.send(
@@ -184,9 +194,18 @@ async def on_message(message: str) -> str:
         # else, print invalid input
         else:
             invalid_weather_command_output = " ".join(get_jarvis_command[2:])
-            await message.channel.send(
-                f"```Weather request for input '{invalid_weather_command_output}' is invalid. Make sure to put a valid zip code (i.e. 90210) or city name (i.e. Seattle).\n\nDid you mean one of these commands?:\nj weather <zipcode>\nj weather <city>```"
+
+            weather_except_msg = (
+                f"```"
+                f"Weather request for input '{invalid_weather_command_output}' is invalid."
+                f" Make sure to put a valid zip code (i.e. 90210) or city name (i.e. Seattle).\n\n"
+                f"Did you mean one of these commands?:\n"
+                f"j weather <zipcode>\n"
+                f"j weather <city>"
+                f"```"
             )
+
+            await message.channel.send(weather_except_msg)
 
     # JARVIS -- CREATE GOOGLE CALENDAR EVENT
     if msg.startswith("j create calendar event"):
@@ -195,16 +214,17 @@ async def on_message(message: str) -> str:
                 calendar_event_details = " ".join(get_jarvis_command[4:])
                 calendar_event_details_inputs = calendar_event_details.split("/")
 
-                start_year_input = int(calendar_event_details_inputs[0])
-                start_month_input = int(calendar_event_details_inputs[1])
-                start_day_input = int(calendar_event_details_inputs[2])
+                start_month_input = int(calendar_event_details_inputs[0])
+                start_day_input = int(calendar_event_details_inputs[1])
+                start_year_input = int(calendar_event_details_inputs[2])
                 start_hour_input = int(calendar_event_details_inputs[3])
                 start_minute_input = int(calendar_event_details_inputs[4])
-                end_year_input = int(calendar_event_details_inputs[5])
-                end_month_input = int(calendar_event_details_inputs[6])
-                end_day_input = int(calendar_event_details_inputs[7])
+                end_month_input = int(calendar_event_details_inputs[5])
+                end_day_input = int(calendar_event_details_inputs[6])
+                end_year_input = int(calendar_event_details_inputs[7])
                 end_hour_input = int(calendar_event_details_inputs[8])
                 end_minute_input = int(calendar_event_details_inputs[9])
+
                 event_title_input = calendar_event_details_inputs[10]
                 description_input = calendar_event_details_inputs[11]
                 # location requires very last input to be the location for this to work properly
@@ -212,14 +232,14 @@ async def on_message(message: str) -> str:
 
                 await message.channel.send(f"Creating new Google Calendar event...")
                 create_google_calendar_event(
-                    start_year_input,
                     start_month_input,
                     start_day_input,
+                    start_year_input,
                     start_hour_input,
                     start_minute_input,
-                    end_year_input,
                     end_month_input,
                     end_day_input,
+                    end_year_input,
                     end_hour_input,
                     end_minute_input,
                     event_title_input,
@@ -238,22 +258,58 @@ async def on_message(message: str) -> str:
                     end_postfix = "pm"
                     end_hour_input -= 12
 
-                start_user_info_print = (
-                    f"{start_hour_input}:{start_minute_input}{start_postfix}"
-                )
+                start_extra_zero = ""
+                if start_minute_input <= 9:
+                    start_extra_zero = 0
+
+                end_extra_zero = ""
+                if end_minute_input <= 9:
+                    end_extra_zero = 0
+
+                start_user_info_print = f"{start_hour_input}:{start_extra_zero}{start_minute_input}{start_postfix}"
                 end_user_info_print = (
-                    f"{end_hour_input}:{end_minute_input}{end_postfix}"
+                    f"{end_hour_input}:{end_extra_zero}{end_minute_input}{end_postfix}"
                 )
 
-                await message.channel.send(
-                    f"Event created! Here are the details.\n```Start Date: {start_month_input}-{start_day_input}-{start_year_input} at {start_user_info_print}\nEnd Date: {end_month_input}-{end_day_input}-{end_year_input} at {end_user_info_print}\nEvent Title: {event_title_input}\nDescription: {description_input}\nLocation: {location_input}```"
+                calendar_created_msg = (
+                    f"Event created! Here are the details.\n"
+                    f"```"
+                    f"Start Date: {start_month_input}-{start_day_input}-{start_year_input} at {start_user_info_print}\n"
+                    f"End Date: {end_month_input}-{end_day_input}-{end_year_input} at {end_user_info_print}\n"
+                    f"Event Title: {event_title_input}\n"
+                    f"Description: {description_input}\n"
+                    f"Location: {location_input}"
+                    f"```"
                 )
+
+                await message.channel.send(calendar_created_msg)
 
             except:
                 invalid_calendar_command_output = " ".join(get_jarvis_command[4:])
-                await message.channel.send(
-                    f"```Calendar creation request for input '{invalid_calendar_command_output}' is invalid. Make sure to input all 13 required inputs in the following order.\n\nHere are the 13 inputs and the required order:\nstart_year\nstart_month\nstart_day\nstart_hour\nstart_minute\nend_year\nend_month\nend_day\nend_hour\nend_minute\nevent_title\ndescription -- optional, but command must end in a '/'-- ex: title_here/\nlocation -- optional\n\nHere's the correct format of this command:\nj create calendar event start_year/start_month/start_day/start_hour/start_minute/end_year/end_month/end_day/end_hour/end_minute/event_title/event_description/event_location\n\nExample:\nj create calendar event 2022/11/16/18/30/2022/11/16/19/30/meeting with jeff bezos about the price of bananas/very long description info filled with much details/www.amazon.com/bananas```"
+
+                calendar_except_msg = (
+                    f"```"
+                    f"Calendar creation request for input '{invalid_calendar_command_output}' is invalid. Make sure to input all 13 required inputs in the following order.\n\n"
+                    f"Here are the 13 inputs and the required order:\n"
+                    f"Start Month\n"
+                    f"Start Day\n"
+                    f"Start Year\n"
+                    f"Start Hour\n"
+                    f"Start Minute\n"
+                    f"End Month\n"
+                    f"End Day\n"
+                    f"End Year\n"
+                    f"End Hour\n"
+                    f"End Minute\n"
+                    f"Event Title\n"
+                    f"Description\n"
+                    f"Location\n\n"
+                    f"Here's the correct format of this command:\n"
+                    f"j create calendar event start_year/start_month/start_day/start_hour/start_minute/end_year/end_month/end_day/end_hour/end_minute/event_title/event_description/event_location\n\nExample:\nj create calendar event 12/25/2023/14/00/12/25/2023/17/00/Final Interview at Tech Company/Final round to join Team JARVIS/www.zoom.com/initiative"
+                    f"```"
                 )
+
+                await message.channel.send(calendar_except_msg)
 
 
 client.run(os.getenv("TOKEN"))
