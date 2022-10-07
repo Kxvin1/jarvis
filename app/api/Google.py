@@ -1,11 +1,53 @@
 import pickle
 import os
+import time
 import datetime
 from collections import namedtuple
 from google_auth_oauthlib.flow import Flow, InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from google.auth.transport.requests import Request
+
+from datetime import datetime
+import pytz
+
+
+def convert_to_RFC_datetime(year=1900, month=1, day=1, hour=0, minute=0):
+    timeZone = pytz.timezone("US/Pacific")
+    dt = datetime(year, month, day, hour, minute)
+    local_dt = timeZone.localize(dt, is_dst=None)
+    # timeStamp_now below should be in UTC already
+    fmt = "%Y-%m-%dT%H:%M:%SZ"
+    timeStamp_now = local_dt.astimezone(pytz.utc)
+    # print(local_dt, "local_dt")
+    # print(timeStamp_now, "ts now")
+    return timeStamp_now.strftime(fmt)
+
+
+# def convert_to_RFC_datetime(year=1900, month=1, day=1, hour=0, minute=0):
+#     # dt = datetime(year, month, day, hour, minute, 0).isoformat() + "Z"
+#     date_time_input = datetime(year, month, day, hour, minute)
+
+#     ## tests, found here: https://www.geeksforgeeks.org/how-to-convert-datetime-to-unix-timestamp-in-python/
+#     to_unix = time.mktime(date_time_input.timetuple())
+#     # print(to_unix, "time.mktime(test_date_time.timetuple())")
+
+#     output = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.localtime(to_unix))
+#     # print(output, "output")
+#     # print(dt, "dt")
+
+#     utc = pytz.utc
+#     utc.zone
+#     western = pytz.timezone("US/Pacific")
+#     western.zone
+#     fmt = "%Y-%m-%dT%H:%M:%SZ"
+
+#     loc_dt = western.localize(date_time_input)
+#     print(loc_dt.strftime(fmt), "loc_dt.strftime(fmt)")
+
+#     ##
+#     print(output, "output")
+#     return output
 
 
 def Create_Service(client_secret_file, api_name, api_version, *scopes, prefix=""):
@@ -46,11 +88,6 @@ def Create_Service(client_secret_file, api_name, api_version, *scopes, prefix=""
         print(f"Failed to create service instance for {API_SERVICE_NAME}")
         os.remove(os.path.join(working_dir, token_dir, pickle_file))
         return None
-
-
-def convert_to_RFC_datetime(year=1900, month=1, day=1, hour=0, minute=0):
-    dt = datetime.datetime(year, month, day, hour, minute, 0).isoformat() + "Z"
-    return dt
 
 
 class GoogleSheetsHelper:

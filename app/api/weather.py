@@ -129,7 +129,7 @@ def get_weather_zip(zip_code: str) -> str:
                 converted_sunset = convert_unix_to_date(sunset)
                 sunset_time = format_time(converted_sunset)
 
-            output_msg = f"```The current weather in {city_name}, {country} is {fahrenheit} degrees with {weather_desc} and {humidity}% humidity. Forecasts are showing {weather_type} throughout the day.\nSunset for {city_name} will be at {sunset_time} pacific time, and sunrise at {sunrise_time}.```"
+            output_msg = f"```The current weather in {city_name}, {country} is {fahrenheit} degrees with {weather_desc} and {humidity}% humidity. Forecasts are showing {weather_type} throughout the day.\nSunset for {city_name} will be at {sunset_time} pacific time, and sunrise at {sunrise_time}```"
 
         except:
             print(

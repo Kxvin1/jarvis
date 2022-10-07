@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from api.Google import *
+from api.Google import Create_Service, convert_to_RFC_datetime
 from api.google_apis import *
 
 
@@ -17,8 +17,6 @@ SCOPES = [
 
 service = Create_Service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 calendar_id_kevin_primary = "kevinzy17@gmail.com"
-
-HOUR_ADJUSTMENT = +8  # Pacific is UTC + 8
 
 """
 Create a Calendar Event
@@ -51,6 +49,12 @@ def create_google_calendar_event(
     int_end_hour_input = int(end_hour_input)
     int_end_minute_input = int(end_minute_input)
 
+    if not description_input:
+        description_input = ""
+
+    if not location_input:
+        location_input = ""
+
     event_request_body = {
         "start": {
             "dateTime": convert_to_RFC_datetime(
@@ -60,7 +64,7 @@ def create_google_calendar_event(
                 int_start_hour_input,
                 int_start_minute_input,
             ),
-            "timeZone": "America/Los_Angeles",
+            # "timeZone": "America/Los_Angeles",
         },
         "end": {
             "dateTime": convert_to_RFC_datetime(
@@ -70,7 +74,7 @@ def create_google_calendar_event(
                 int_end_hour_input,
                 int_end_minute_input,
             ),
-            "timeZone": "America/Los_Angeles",
+            # "timeZone": "America/Los_Angeles",
         },
         "summary": str(event_title_input),
         "description": str(description_input),
@@ -101,9 +105,3 @@ def create_google_calendar_event(
         "Jarvis successfully created a Google Calendar event. Here are the details:\n"
     )
     pprint(response)
-    return response
-
-
-# create_google_calendar_event(
-#     2022, 11, 15, 8, 30, 2022, 11, 15, 9, 30, "title", "desc", "location"
-# )

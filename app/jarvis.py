@@ -18,41 +18,6 @@ load_dotenv()
 client = discord.Client()
 
 
-########################## start implementations ##########################
-# if using in cli: might need to use sysargv[1] sysargv[2] etc to check user input for certain commands?
-# otherwise should work as normal commands in discord using msg.startswith
-
-# implemented features:
-# 1. inspirational quote api
-# 2. jarvis basic greetings (jarvis will reply with preset greetings based on what you say)
-# 3. retrieve weather api, using zipcode or city name
-
-# currently working on:
-# 1. google calendar api implementation
-
-# Planned features:
-# -Geolocate a user (by ip address)
-# -Permanent uptime for discord bot
-# -Implement reddit api
-# -Implement Twitter api
-# -youtube api
-# -Spotify api
-# -flight/travel api
-# -news
-# -hotel bookings
-# -nba api
-# -airbnb api
-# -urbandictionary
-# -recipes
-# -words api
-
-
-# TBD Features (need to look more into it):
-# LinkedIn api
-# No database for bot for now, if I ever need one lets implement dynamodb
-
-########################## end implementations ##########################
-
 jarvis_commands = [
     "jarvis weather",  # grab weather from api -- IMPLEMENTED. just needs touching up/refactoring
     "jarvis track",  # use geolocation db to track user by ip address (geolocate)
@@ -94,7 +59,7 @@ async def on_ready():
     greeting_weather = weather_details[3:-3]
 
     print(
-        f"Hello sir. Here are your updates for the day: \n\nIt's {current_time}.\n\n{greeting_weather}."
+        f"Hello sir. Here are your updates for the day: \n\nIt's {current_time}.\n\n{greeting_weather}"
     )
 
 
@@ -109,28 +74,28 @@ async def on_message(message: str) -> str:
     if message.author == client.user:
         return
 
-    # JARVIS -- SIMPLE UPDATE (GIVES TIME AND WEATHER FOR ADMIN USER)
-    if msg.startswith("jarvis update"):
+    # JARVIS -- WEATHER FORECAST AND TIME UPDATE (GIVES TIME AND WEATHER FOR ADMIN USER)
+    if msg.startswith("j update"):
         jarvis_update_current_time = get_current_time()
 
         weather_details = get_weather_city("Northridge")
         greeting_weather = weather_details[3:-3]
-        output = f"```Hello sir, here's are your updates: \n\nIt's {jarvis_update_current_time}.\n\n{greeting_weather}.```"
+        output = f"```Hello sir, here's are your updates: \n\nIt's {jarvis_update_current_time}.\n\n{greeting_weather}```"
         await message.channel.send(output)
 
-    # JARVIS -- SIMPLE JARVIS GREETING
+    # JARVIS -- JARVIS GREETING
     if any(wake_command in msg.lower() for wake_command in jarvis_wake_commands):
         await message.channel.send(random.choice(jarvis_wake_responses))
 
     # JARVIS -- INSPIRATIONAL QUOTES API FETCHING
-    if msg.startswith("!inspire"):
+    if msg.startswith("j inspire me"):
         quote = get_quote()
         await message.channel.send(f"Retrieving random motivational quote...")
         time.sleep(2)
         await message.channel.send(quote)
 
     # JARVIS -- WEATHER API FETCHING
-    if msg.startswith("jarvis weather"):
+    if msg.startswith("j weather"):
         # if input was a zip code:
         if zip_checker(get_jarvis_command[2]):
             try:
@@ -185,30 +150,27 @@ async def on_message(message: str) -> str:
             )
 
     # JARVIS -- CREATE GOOGLE CALENDAR EVENT
-    if msg.startswith("jarvis create calendar event"):
-        if len(get_jarvis_command) > 4:
-            calendar_event_details = " ".join(get_jarvis_command[4:])
-            calendar_event_details_inputs = calendar_event_details.split("/")
-
-            start_year_input = int(calendar_event_details_inputs[0])
-            start_month_input = int(calendar_event_details_inputs[1])
-            start_day_input = int(calendar_event_details_inputs[2])
-            start_hour_input = int(calendar_event_details_inputs[3])
-            start_minute_input = int(calendar_event_details_inputs[4])
-            end_year_input = int(calendar_event_details_inputs[5])
-            end_month_input = int(calendar_event_details_inputs[6])
-            end_day_input = int(calendar_event_details_inputs[7])
-            end_hour_input = int(calendar_event_details_inputs[8])
-            end_minute_input = int(calendar_event_details_inputs[9])
-            event_title_input = calendar_event_details_inputs[10]
-            description_input = calendar_event_details_inputs[11]
-            location_input = calendar_event_details_inputs[12]
-
-            if start_hour_input < 0 or start_hour_input > 24:
-                await message.channel.send(f"Input only accepts hours between 0 and 16")
-
+    if msg.startswith("j create calendar event"):
+        if len(get_jarvis_command) >= 4:
             try:
-                print("in try")
+                calendar_event_details = " ".join(get_jarvis_command[4:])
+                calendar_event_details_inputs = calendar_event_details.split("/")
+
+                start_year_input = int(calendar_event_details_inputs[0])
+                start_month_input = int(calendar_event_details_inputs[1])
+                start_day_input = int(calendar_event_details_inputs[2])
+                start_hour_input = int(calendar_event_details_inputs[3])
+                start_minute_input = int(calendar_event_details_inputs[4])
+                end_year_input = int(calendar_event_details_inputs[5])
+                end_month_input = int(calendar_event_details_inputs[6])
+                end_day_input = int(calendar_event_details_inputs[7])
+                end_hour_input = int(calendar_event_details_inputs[8])
+                end_minute_input = int(calendar_event_details_inputs[9])
+                event_title_input = calendar_event_details_inputs[10]
+                description_input = calendar_event_details_inputs[11]
+                # location requires very last input to be the location for this to work properly
+                location_input = "/".join(calendar_event_details_inputs[12:])
+
                 await message.channel.send(f"Creating new Google Calendar event...")
                 create_google_calendar_event(
                     start_year_input,
@@ -226,20 +188,33 @@ async def on_message(message: str) -> str:
                     location_input,
                 )
                 time.sleep(2)
-                # send msgs about the details here using the variables above
-                await message.channel.send(f"Event created! Here are the details...")
+
+                start_postfix = "am"
+                if start_hour_input > 12:
+                    start_postfix = "pm"
+                    start_hour_input -= 12
+
+                end_postfix = "am"
+                if end_hour_input > 12:
+                    end_postfix = "pm"
+                    end_hour_input -= 12
+
+                start_user_info_print = (
+                    f"{start_hour_input}:{start_minute_input}{start_postfix}"
+                )
+                end_user_info_print = (
+                    f"{end_hour_input}:{end_minute_input}{end_postfix}"
+                )
+
+                await message.channel.send(
+                    f"Event created! Here are the details.\n```Start Date: {start_month_input}-{start_day_input}-{start_year_input} at {start_user_info_print}\nEnd Date: {end_month_input}-{end_day_input}-{end_year_input} at {end_user_info_print}\nEvent Title: {event_title_input}\nDescription: {description_input}\nLocation: {location_input}```"
+                )
 
             except:
-                print("IN EXCEPT")
-                invalid_calendar_inputs = "/".join(calendar_event_details_inputs)
+                invalid_calendar_command_output = " ".join(get_jarvis_command[4:])
                 await message.channel.send(
-                    f"Input {invalid_calendar_inputs} invalid. Make sure to input all 13 required inputs.\n\nDid you mean one of these commands?:\n'jarvis create calendar event start_year/start_month/start_day/start_hour/start_minute/end_year/end_month/end_day/end_hour/end_minute/event_title/event_description/event_location'"
+                    f"```Calendar creation request for input '{invalid_calendar_command_output}' is invalid. Make sure to input all 13 required inputs in the following order.\n\nHere are the 13 inputs and the required order:\nstart_year\nstart_month\nstart_day\nstart_hour\nstart_minute\nend_year\nend_month\nend_day\nend_hour\nend_minute\nevent_title\ndescription -- optional, but command must end in a '/'-- ex: title_here/\nlocation -- optional\n\nHere's the correct format of this command:\nj create calendar event start_year/start_month/start_day/start_hour/start_minute/end_year/end_month/end_day/end_hour/end_minute/event_title/event_description/event_location\n\nExample:\nj create calendar event 2022/11/16/18/30/2022/11/16/19/30/meeting with jeff bezos about the price of bananas/very long description info filled with much details/www.amazon.com/bananas```"
                 )
-        else:
-            invalid_calendar_command_output = " ".join(get_jarvis_command[4:])
-            await message.channel.send(
-                f"```Calendar creation request for input '{invalid_calendar_command_output}' is invalid. Make sure to put a valid zip code (i.e. 90210) or city name (i.e. Seattle).\n\nDid you mean one of these commands?:\njarvis create calendar event start_year/start_month/start_day/start_hour/start_minute/end_year/end_month/end_day/end_hour/end_minute/event_title/event_description/event_location```"
-            )
 
 
 client.run(os.getenv("TOKEN"))
