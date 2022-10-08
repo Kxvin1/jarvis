@@ -17,22 +17,22 @@
 - Used a Weather API to get a city’s weather forecast, accepts multiple commands such as zip code or city name
 - Introduced Google Calendar API to allow bot to add events to my personal Google Calendar through a command
 
-## Check out Jarvis in action!
+## Check out Jarvis in action
 
 #### Jarvis's List of Commands
 ![List of Commands](https://i.imgur.com/Z5kF4Ry.png)
 
 ----
 
-#### Jarvis getting the current weather forecast, from anywhere in the world and any input:
+#### Jarvis getting the current weather forecast, from anywhere in the world with a city name or zip code:
 ![Weather](https://i.imgur.com/nerpTYV.png)
 
-- And of course there's detailed error handling (for every command, not just the weather)
+- And there's detailed error handling (for every command, not just the weather)
 ![Weather_Error](https://i.imgur.com/HNOo6F6.png)
 
 ----
 
-#### Jarvis also inspires you and gives updates on the current time and weather!
+#### Jarvis also inspires you and gives updates on the current time and weather
 ![Inspirational Updates](https://i.imgur.com/HyHdFJ1.png)
 
 ----
@@ -42,7 +42,7 @@
 
 ----
 
-#### Here's Jarvis creating a Google Calender event for that really important meeting with your dream company + tracking a user
+#### Here's Jarvis creating a Google Calender event for that really important meeting + tracking a user
 ![Calendar and Tracking](https://i.imgur.com/narT0a1.png)
 
 - And here's what the result looks like on Google Calendar:
