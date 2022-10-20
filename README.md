@@ -19,6 +19,7 @@
 - Nutrition - gets nutrition information of a specified food/dish/meal
 - Replace Uptime Robot with Amazon EC2
 - Give Jarvis a database - DynamoDB
+- Twitter + Notion - Save a specified tweet to Notion
 
 
 ## Here are some key features that are fully functional:
