@@ -4,6 +4,13 @@ import datetime as dt
 import time
 
 
+# ---------------------------------------------
+
+# ---------
+# HELPER FUNCTIONS
+# ---------
+
+
 def convert_unix_to_date(unix_string: str) -> str:
     return dt.datetime.fromtimestamp(int(f"{unix_string}")).strftime(
         "%Y-%m-%d %H:%M:%S"
@@ -25,6 +32,14 @@ def format_time(converted_time: str) -> str:
     preformatted_time = time.strptime(hour_min_time, "%H:%M")
     time_formatted = time.strftime("%I:%M %p", preformatted_time)
     return time_formatted
+
+
+# ---------------------------------------------
+
+
+# ---------
+# ZIP CODE FUNCTIONS
+# ---------
 
 
 def get_initial_data_from_zip(zip_code: str) -> dict[str:str]:
@@ -55,41 +70,6 @@ def get_initial_data_from_zip(zip_code: str) -> dict[str:str]:
         except:
             print(
                 f"Error getting weather from http://api.openweathermap.org/geo/1.0/zip?zip={zip_code}&appid={weather_api_key}"
-            )
-
-
-def get_initial_data_from_city(city_name_input: str) -> dict[str:str]:
-    weather_api_key = os.environ["WEATHER_API_KEY"]
-
-    output = {
-        "state": "",
-        "city_name": "",
-        "country": "",
-        "lat": 0,
-        "lon": 0,
-    }
-
-    if city_name_input:
-        try:
-            get_initial_info = requests.get(
-                f"http://api.openweathermap.org/geo/1.0/direct?q={city_name_input}&appid={weather_api_key}"
-            ).json()
-
-            if "state" not in get_initial_info[0]:
-                output["state"] = ""
-            else:
-                output["state"] = get_initial_info[0]["state"]
-
-            output["city_name"] = get_initial_info[0]["name"]
-            output["country"] = get_initial_info[0]["country"]
-            output["lat"] = get_initial_info[0]["lat"]
-            output["lon"] = get_initial_info[0]["lon"]
-
-            return output
-
-        except:
-            print(
-                f"Error getting weather from http://api.openweathermap.org/geo/1.0/direct?q={city_name_input}&appid={weather_api_key}"
             )
 
 
@@ -137,6 +117,48 @@ def get_weather_zip(zip_code: str) -> str:
             )
 
     return output_msg
+
+
+# ---------------------------------------------
+
+# ---------
+# CITY FUNCTIONS
+# ---------
+
+
+def get_initial_data_from_city(city_name_input: str) -> dict[str:str]:
+    weather_api_key = os.environ["WEATHER_API_KEY"]
+
+    output = {
+        "state": "",
+        "city_name": "",
+        "country": "",
+        "lat": 0,
+        "lon": 0,
+    }
+
+    if city_name_input:
+        try:
+            get_initial_info = requests.get(
+                f"http://api.openweathermap.org/geo/1.0/direct?q={city_name_input}&appid={weather_api_key}"
+            ).json()
+
+            if "state" not in get_initial_info[0]:
+                output["state"] = ""
+            else:
+                output["state"] = get_initial_info[0]["state"]
+
+            output["city_name"] = get_initial_info[0]["name"]
+            output["country"] = get_initial_info[0]["country"]
+            output["lat"] = get_initial_info[0]["lat"]
+            output["lon"] = get_initial_info[0]["lon"]
+
+            return output
+
+        except:
+            print(
+                f"Error getting weather from http://api.openweathermap.org/geo/1.0/direct?q={city_name_input}&appid={weather_api_key}"
+            )
 
 
 def get_weather_city(city_name_input: str) -> str:

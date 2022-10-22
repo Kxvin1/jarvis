@@ -58,6 +58,12 @@ async def on_ready():
     )
 
 
+# ---------------------------------------------
+
+# -------
+# JARVIS COMMANDS
+# -------
+
 # JARVIS -- EVENT LISTENERS - SENDS MESSAGES TO DISCORD SERVER BASED ON COMMAND
 @client.event
 async def on_message(message: str) -> str:
@@ -308,6 +314,8 @@ async def on_message(message: str) -> str:
 
                 await message.channel.send(calendar_except_msg)
 
+
+# ---------------------------------------------
 
 client.run(os.getenv("TOKEN"))
 client.run(os.getenv("WEATHER_API_KEY"))
