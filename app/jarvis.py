@@ -5,38 +5,32 @@ import time
 
 from dotenv import load_dotenv
 
-from utils.zip_checker import zip_checker
-from utils.city_checker import city_checker
-from utils.get_current_time import get_current_time
-
-from api.quotes import get_quote
-from api.weather import get_weather_zip, get_weather_city
-from api.google_calendar import create_google_calendar_event
-from api.geolocate import track_user
+from utils import zip_checker, city_checker, get_current_time
+from api import quotes, weather, google_calendar, geolocate
 
 load_dotenv()
 client = discord.Client()
 
-
 jarvis_commands = [
-    "j inspire me -- grab random quote from quotes api",
-    "j weather -- grab weather from api (via zipcode or city name)",
-    "j track -- geolocate a user by ip address",
-    "j create calendar event -- create google calendar event",
+    "j commands --> list all available commands"
+    "j inspire me --> grab random quote from quotes api",
+    "j weather --> grab weather from api (via zipcode or city name)",
+    "j track --> geolocate a user by ip address",
+    "j create calendar event --> create google calendar event",
 ]
 
 
 jarvis_wake_commands = [
     "hello jarvis",
+    "jarvis hello",
     "hi jarvis",
+    "jarvis hi",
     "greetings jarvis",
+    "jarvis greetings",
+    "you there jarvis",
     "jarvis you there",
     "hey jarvis",
-    "jarvis hi",
     "jarvis hey",
-    "you there jarvis",
-    "jarvis hello",
-    "jarvis greetings",
     "wake up jarvis",
     "jarvis wake up",
     "wakeup jarvis",
@@ -54,9 +48,9 @@ jarvis_wake_responses = [
 # JARVIS -- RUNS ONCE ON BOOTUP, PRINTS TO TERMINAL
 @client.event
 async def on_ready():
-    current_time = get_current_time()
+    current_time = get_current_time.get_current_time()
 
-    weather_details = get_weather_city("Northridge")
+    weather_details = weather.get_weather_city("Northridge")
     greeting_weather = weather_details[3:-3]
 
     print(
@@ -84,9 +78,9 @@ async def on_message(message: str) -> str:
 
     # JARVIS -- WEATHER FORECAST AND TIME UPDATE (GIVES TIME AND WEATHER FOR ADMIN USER)
     if msg.startswith("j update"):
-        jarvis_update_current_time = get_current_time()
+        jarvis_update_current_time = get_current_time.get_current_time()
 
-        weather_details = get_weather_city("Northridge")
+        weather_details = weather.get_weather_city("Northridge")
         greeting_weather = weather_details[3:-3]
         output = f"```Hello sir, here's are your updates: \n\nIt's {jarvis_update_current_time}.\n\n{greeting_weather}```"
         await message.channel.send(output)
@@ -100,7 +94,7 @@ async def on_message(message: str) -> str:
         if get_jarvis_command[2]:
             try:
                 ip = get_jarvis_command[2]
-                user_details = track_user(ip)
+                user_details = geolocate.track_user(ip)
 
                 user_country = user_details["country_name"]
                 user_state = user_details["state"]
@@ -138,7 +132,7 @@ async def on_message(message: str) -> str:
 
     # JARVIS -- INSPIRATIONAL QUOTES API FETCHING
     if msg.startswith("j inspire me"):
-        quote = get_quote()
+        quote = quotes.get_quote()
         await message.channel.send(f"Retrieving random motivational quote...")
         time.sleep(2)
         await message.channel.send(quote)
@@ -146,11 +140,11 @@ async def on_message(message: str) -> str:
     # JARVIS -- WEATHER API FETCHING
     if msg.startswith("j weather"):
         # if input was a zip code:
-        if zip_checker(get_jarvis_command[2]):
+        if zip_checker.zip_checker(get_jarvis_command[2]):
             try:
                 if get_jarvis_command[2]:
                     zip_code = get_jarvis_command[2]
-                    weather_details = get_weather_zip(zip_code)
+                    weather_details = weather.get_weather_zip(zip_code)
                     await message.channel.send(
                         f"Getting weather details for {zip_code}..."
                     )
@@ -163,9 +157,11 @@ async def on_message(message: str) -> str:
                     f"Zip code {zip_code} not found. Here's the correct format: j weather <zipcode>"
                 )
         # elif input was a city input
-        elif city_checker(get_jarvis_command[2]):
+        elif city_checker.city_checker(get_jarvis_command[2]):
             try:
-                if get_jarvis_command[2] and city_checker(get_jarvis_command[2]):
+                if get_jarvis_command[2] and city_checker.city_checker(
+                    get_jarvis_command[2]
+                ):
                     # city with 1 name
                     if len(get_jarvis_command) == 3:
                         city_name = {get_jarvis_command[2]}
@@ -181,7 +177,7 @@ async def on_message(message: str) -> str:
                         city_name = f"{get_jarvis_command[2]}-{get_jarvis_command[3]}-{get_jarvis_command[4]}"
                         retrieve_msg = f"Getting weather details for {get_jarvis_command[2].capitalize()} {get_jarvis_command[3].capitalize()} {get_jarvis_command[4].capitalize()}..."
 
-                    weather_details = get_weather_city(city_name)
+                    weather_details = weather.get_weather_city(city_name)
                     await message.channel.send(retrieve_msg)
                     time.sleep(2)
                     await message.channel.send(weather_details)
@@ -231,7 +227,7 @@ async def on_message(message: str) -> str:
                 location_input = "/".join(calendar_event_details_inputs[12:])
 
                 await message.channel.send(f"Creating new Google Calendar event...")
-                create_google_calendar_event(
+                google_calendar.create_google_calendar_event(
                     start_month_input,
                     start_day_input,
                     start_year_input,
