@@ -72,7 +72,6 @@ async def on_message(message: str) -> str:
     # JARVIS -- LIST COMMANDS
     if msg.startswith("j commands"):
         await message.channel.send("Here are my available commands:")
-        time.sleep(1)
         commands_as_str = "\n".join(jarvis_commands)
         await message.channel.send(f"```{commands_as_str}```")
 
@@ -108,7 +107,7 @@ async def on_message(message: str) -> str:
                 )
 
                 await message.channel.send(f"Locating user with IP address {ip} ...")
-                time.sleep(2)
+                time.sleep(1)
 
                 track_msg = (
                     f"```"
@@ -134,7 +133,7 @@ async def on_message(message: str) -> str:
     if msg.startswith("j inspire me"):
         quote = quotes.get_quote()
         await message.channel.send(f"Retrieving random motivational quote...")
-        time.sleep(2)
+        time.sleep(1)
         await message.channel.send(quote)
 
     # JARVIS -- WEATHER API FETCHING
@@ -148,7 +147,7 @@ async def on_message(message: str) -> str:
                     await message.channel.send(
                         f"Getting weather details for {zip_code}..."
                     )
-                    time.sleep(2)
+                    time.sleep(1)
                     await message.channel.send(weather_details)
                 else:
                     await message.channel.send("Zip code invalid.")
@@ -179,7 +178,7 @@ async def on_message(message: str) -> str:
 
                     weather_details = weather.get_weather_city(city_name)
                     await message.channel.send(retrieve_msg)
-                    time.sleep(2)
+                    time.sleep(1)
                     await message.channel.send(weather_details)
                 else:
                     await message.channel.send("City name invalid.")
@@ -210,6 +209,9 @@ async def on_message(message: str) -> str:
                 calendar_event_details = " ".join(get_jarvis_command[4:])
                 calendar_event_details_inputs = calendar_event_details.split("/")
 
+                # expected input to create a calendar event
+                # St_Month/St_Day/St_Year/St_Hour/St_Min/End_Month/End_Day/End_Year/End_Hour/End_Min/Title/Desc/Location (13 inputs)
+
                 start_month_input = int(calendar_event_details_inputs[0])
                 start_day_input = int(calendar_event_details_inputs[1])
                 start_year_input = int(calendar_event_details_inputs[2])
@@ -220,7 +222,6 @@ async def on_message(message: str) -> str:
                 end_year_input = int(calendar_event_details_inputs[7])
                 end_hour_input = int(calendar_event_details_inputs[8])
                 end_minute_input = int(calendar_event_details_inputs[9])
-
                 event_title_input = calendar_event_details_inputs[10]
                 description_input = calendar_event_details_inputs[11]
                 # location requires very last input to be the location for this to work properly
@@ -242,7 +243,7 @@ async def on_message(message: str) -> str:
                     description_input,
                     location_input,
                 )
-                time.sleep(2)
+                time.sleep(1)
 
                 start_postfix = "am"
                 if start_hour_input > 12:
