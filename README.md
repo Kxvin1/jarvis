@@ -3,23 +3,12 @@
 - Why this project? I've always wanted to create something that could execute everyday tasks as well as automate things for me just by typing commands, so I went with a Discord bot.
 - I have a lot of fun working on this and it's definitely still a work in progress.
 
-
-
-## Planned Features
-
-- Reddit - get links/content from specified subreddit, get top comments of a post
-- Spotify - use Spotify
-- Twitter - get a specified user's recent tweets, post a tweet on personal account)
-- Dictionary - get details for a specific word (definition, synonym, used in a sentence, etc)
-- UrbanDictionary - same as dictionary but uses UrbanDictionary
-- Similar Music/Movies/TV Shows - recommends similar media forms based on specified query and media type
-- Password Generator - generate a randomly generated password of specified length and types of characters to include (nums, chars, caps)
-- Google Translator - translate a word or phrase into requested language
-- News - gets the most recent news articles for the day
-- Nutrition - gets nutrition information of a specified food/dish/meal
-- Replace Uptime Robot with Amazon EC2
-- Give Jarvis a database - DynamoDB
-- Twitter + Notion - Save a specified tweet to Notion
+## Technology Used:
+![python](https://img.shields.io/badge/Python-3776AB.svg?style=for-the-badge&logo=Python&logoColor=white)
+![discord](https://img.shields.io/badge/Discord-5865F2.svg?style=for-the-badge&logo=Discord&logoColor=white)
+![google](https://img.shields.io/badge/Google%20Cloud-4285F4.svg?style=for-the-badge&logo=Google-Cloud&logoColor=white)
+![google cal](https://img.shields.io/badge/Google%20Calendar-4285F4.svg?style=for-the-badge&logo=Google-Calendar&logoColor=white)
+![ec2](https://img.shields.io/badge/Amazon%20EC2-FF9900.svg?style=for-the-badge&logo=Amazon-EC2&logoColor=white)
 
 
 ## Here are some key features that are fully functional:
@@ -60,3 +49,23 @@
 
 - And here's what the result looks like on Google Calendar:
 ![GC](https://i.imgur.com/kunyp2k.png)
+
+
+----
+
+## Planned Features
+
+- Reddit - get links/content from specified subreddit, get top comments of a post
+- Spotify - use Spotify
+- Twitter - get a specified user's recent tweets, post a tweet on personal account)
+- Dictionary - get details for a specific word (definition, synonym, used in a sentence, etc)
+- UrbanDictionary - same as dictionary but uses UrbanDictionary
+- Similar Music/Movies/TV Shows - recommends similar media forms based on specified query and media type
+- Password Generator - generate a randomly generated password of specified length and types of characters to include (nums, chars, caps)
+- Google Translator - translate a word or phrase into requested language
+- News - gets the most recent news articles for the day
+- Nutrition - gets nutrition information of a specified food/dish/meal
+- Replace Uptime Robot with Amazon EC2
+- Give Jarvis a database - DynamoDB
+- Twitter + Notion - Save a specified tweet to Notion
+
